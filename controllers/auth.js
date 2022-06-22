@@ -88,7 +88,19 @@ const RegisterController = async (req, res) => {
   }
 };
 
+const UserController = async (req, res) => {
+  try {
+    const user = await UserSchema.findById(req.user._id);
+    return res
+      .status(200)
+      .json({ username: user.username, id: user._id, avatar: user.avatar });
+  } catch (err) {
+    return res.status(400).json({ msg: 'ابتدا وارد سایت شوید' });
+  }
+};
+
 module.exports = {
   RegisterController,
   LoginController,
+  UserController,
 };

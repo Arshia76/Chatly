@@ -16,19 +16,19 @@ const authorize = async (req, res, next) => {
   } catch (err) {
     res.status(401).json({
       msg: 'ابتدا وارد سایت شوید',
+      err,
     });
   }
 };
 
-const admin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
-    next();
-  } else {
-    return res.status(401).json({ msg: 'شما ادمین نیستید' });
-  }
-};
+// const admin = (req, res, next) => {
+//   if (req.user && req.user.isAdmin) {
+//     next();
+//   } else {
+//     return res.status(401).json({ msg: 'شما ادمین نیستید' });
+//   }
+// };
 
 module.exports = {
   authorize,
-  admin,
 };

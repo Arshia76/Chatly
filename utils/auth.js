@@ -33,7 +33,8 @@ const jwtSign = async (data) => {
 };
 
 const verifyJWT = (token, env) => {
-  return jwt.verify(token, env);
+  const data = jwt.verify(token, env);
+  return data;
 };
 
 module.exports = {
