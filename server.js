@@ -28,12 +28,20 @@ const io = socketio(server, {
   },
 });
 
+let onlineUsers = [];
+
 io.on('connection', (socket) => {
   console.log('Connected to socket.io');
   socket.on('setup', (userData) => {
+    console.log('-----------------------------');
     console.log(userData);
     socket.join(userData.id);
+    if (!onlineUsers.some((data) => data.id === userData.id)) {
+      onlineUsers.push({ id: userData.id, socket: socket.id });
+    }
+    console.log(onlineUsers);
     console.log(socket.rooms);
+    io.emit('onlineUsers', onlineUsers);
     socket.emit('connected');
   });
 
@@ -68,10 +76,15 @@ io.on('connection', (socket) => {
     io.to(data.to).emit('callAccepted', data.signal);
   });
 
-  socket.off('disconnect', (userId, username, roomId) => {
+  socket.on('disconnect', () => {
     console.log('USER DISCONNECTED');
-    socket.leave(userId);
-    io.to(roomId).emit('userLeft', `${username} مکالمه را ترک کرد`);
+    onlineUsers = onlineUsers.filter((data) => data.socket !== socket.id);
+
+    console.log(onlineUsers);
+    io.emit('offlineUsers', onlineUsers);
+    // socket.leave(userId);
+
+    // io.to(roomId).emit('userLeft', `${username} مکالمه را ترک کرد`);
   });
 });
 const PORT = process.env.PORT || 5000;
