@@ -5,14 +5,15 @@ const {
   DocumentFileUploadController,
   DownloadDocumentController,
 } = require('../controllers/file');
+const { authorize } = require('../middleware/authorize');
 const router = express();
 
-router.post('/upload/message', MessageFileUploadController);
+router.post('/upload/message', authorize, MessageFileUploadController);
 
-router.post('/upload/audio', AudioFileUploadController);
+router.post('/upload/audio', authorize, AudioFileUploadController);
 
-router.post('/upload/document', DocumentFileUploadController);
+router.post('/upload/document', authorize, DocumentFileUploadController);
 
-router.post('/download', DownloadDocumentController);
+router.post('/download', authorize, DownloadDocumentController);
 
 module.exports = router;
