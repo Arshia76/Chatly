@@ -22,6 +22,27 @@ app.use('/api/message', require('./routes/message'));
 app.use('/api/user', require('./routes/user'));
 app.use('/api', require('./routes/file'));
 
+
+if (process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    if (req.header('x-forwarded-proto') !== 'https') {
+      res.redirect(`https://${req.header('host')}${req.url}`);
+    } else {
+      next();
+    }
+  });
+  // app.use(express.static(path.join(path.resolve(), '/frontend/build')));
+  // app.get('*', (req, res) => {
+  //   res.sendFile(
+  //     path.resolve(path.resolve(), 'frontend', 'build', 'index.html')
+  //   );
+  // });
+} else {
+  app.get('/', (req, res) => {
+    res.send('Api is running');
+  });
+}
+
 const io = socketio(server, {
   cors: {
     origin: '*',
