@@ -120,7 +120,9 @@ const DownloadDocumentController = async (req, res) => {
     }
 
     const path = `${require('path').resolve(__dirname, '..')}${
-      req.body.file.split('5000')[1]
+      process.env.NODE_ENV === 'development'
+        ? req.body.file.split('5000')[1]
+        : req.body.file.split('.com')[1]
     }`;
 
     return res.status(200).download(path);
