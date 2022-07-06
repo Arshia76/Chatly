@@ -148,6 +148,22 @@ const renameGroupChatController = async (req, res) => {
   try {
     const { chatId, chatName } = req.body;
 
+    if (!chatId || !chatName) {
+      return res.status(400).json({
+        success: false,
+        message: 'لطفا اطلاعات را به صورت کامل وارد کنید.',
+      });
+    }
+
+    const chat = await ChatModel.findById(chatId);
+
+    if (chat.groupAdmin._id.toString() !== req.user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'فقط ادمین می‌تواند اعضا را به گروه اضافه کند.',
+      });
+    }
+
     const updatedChat = await ChatModel.findByIdAndUpdate(
       chatId,
       {
@@ -177,11 +193,27 @@ const renameGroupChatController = async (req, res) => {
   }
 };
 
-const addToGroupChatController = async (req, res) => {
+const removeFromGroupChatController = async (req, res) => {
   try {
     const { chatId, userId } = req.body;
 
+    if (!chatId || !userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'لطفا اطلاعات را به صورت کامل وارد کنید.',
+      });
+    }
+
     // check if the requester is admin
+
+    const chat = await ChatModel.findById(chatId);
+
+    if (chat.groupAdmin._id.toString() !== req.user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'فقط ادمین می‌تواند اعضا را از گروه حذف کند.',
+      });
+    }
 
     const removed = await ChatModel.findByIdAndUpdate(
       chatId,
@@ -198,10 +230,10 @@ const addToGroupChatController = async (req, res) => {
     if (!removed) {
       return res.status(400).json({
         success: false,
-        message: 'چت پیدا نشد',
+        message: 'کاربری با چنین شناسه موجود نمی‌باشد.',
       });
     } else {
-      return res.json(removed);
+      return res.status(200).json(removed);
     }
   } catch (error) {
     return res.status(500).json({
@@ -212,11 +244,34 @@ const addToGroupChatController = async (req, res) => {
   }
 };
 
-const removeFromGroupChatController = async (req, res) => {
+const addToGroupChatController = async (req, res) => {
   try {
     const { chatId, userId } = req.body;
 
+    if (!chatId || !userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'لطفا اطلاعات را به صورت کامل وارد کنید.',
+      });
+    }
+
     // check if the requester is admin
+
+    const chat = await ChatModel.findById(chatId);
+
+    if (chat.groupAdmin._id.toString() !== req.user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'فقط ادمین می‌تواند اعضا را به گروه اضافه کند.',
+      });
+    }
+
+    if (chat.users.includes(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'کاربر در چت موجود می‌باشد.',
+      });
+    }
 
     const added = await ChatModel.findByIdAndUpdate(
       chatId,
@@ -233,7 +288,7 @@ const removeFromGroupChatController = async (req, res) => {
     if (!added) {
       return res.status(400).json({
         success: false,
-        message: 'چت پیدا نشد',
+        message: 'کاربر پیدا نشد.',
       });
     } else {
       return res.json(added);
