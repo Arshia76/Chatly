@@ -15,13 +15,12 @@ app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 app.use(upload());
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: false, limit: '4M' }));
+app.use(express.urlencoded({ extended: false, limit: '4mb' }));
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/chat', require('./routes/chat'));
 app.use('/api/message', require('./routes/message'));
 app.use('/api/user', require('./routes/user'));
 app.use('/api', require('./routes/file'));
-
 
 if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {

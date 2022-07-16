@@ -1,9 +1,34 @@
 const MessageModel = require('../models/Message');
+const { createDirectory } = require('../utils/functions');
 const fs = require('fs');
 
-const createDirectory = (dir) => {
-  if (!fs.existsSync(dir)) {
-    return fs.mkdirSync(dir, { recursive: true });
+const AvatarUploadController = async (req, res) => {
+  if (req.files) {
+    console.log(req.files);
+    console.log(req.body);
+    let file = req.files.file;
+    let filename = Date.now() + file.name;
+    console.log(filename);
+
+    const path = `${require('path').resolve(__dirname, '..')}/uploads/avatars/${
+      req.body.user
+    }`;
+
+    createDirectory(path);
+
+    file.mv(`${path}/${filename}`, function (err) {
+      if (err) {
+        return res.status(400).json({
+          success: false,
+          message: 'خطا در بارگزاری',
+          error: err,
+        });
+      } else {
+        console.log('File Uploaded');
+        const dataPath = `/uploads/avatars/${req.body.user}` + '/' + filename;
+        return res.status(200).send(dataPath);
+      }
+    });
   }
 };
 
@@ -136,6 +161,7 @@ const DownloadDocumentController = async (req, res) => {
 };
 
 module.exports = {
+  AvatarUploadController,
   MessageFileUploadController,
   AudioFileUploadController,
   DocumentFileUploadController,

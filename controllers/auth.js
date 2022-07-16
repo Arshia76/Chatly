@@ -27,6 +27,7 @@ const LoginController = async (req, res) => {
       id: user._id,
       username: user.username,
       token,
+      email: user.email,
       avatar: user.avatar,
     });
   } catch (error) {
@@ -77,6 +78,7 @@ const RegisterController = async (req, res) => {
       id: user._id,
       username: user.username,
       token,
+      email: user.email,
       avatar: user.avatar,
     });
   } catch (error) {
@@ -91,9 +93,12 @@ const RegisterController = async (req, res) => {
 const UserController = async (req, res) => {
   try {
     const user = await UserSchema.findById(req.user._id);
-    return res
-      .status(200)
-      .json({ username: user.username, id: user._id, avatar: user.avatar });
+    return res.status(200).json({
+      username: user.username,
+      email: user.email,
+      id: user._id,
+      avatar: user.avatar,
+    });
   } catch (err) {
     return res.status(400).json({ msg: 'ابتدا وارد سایت شوید' });
   }

@@ -1,4 +1,5 @@
 const moment = require('jalali-moment');
+const fs = require('fs');
 
 const groupByDate = (array, field) => {
   let groupedArr = [];
@@ -22,6 +23,25 @@ const groupByDate = (array, field) => {
   return groupedArr;
 };
 
+const deleteFile = (path) => {
+  fs.unlink(path, (err) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    console.log('file removed');
+  });
+};
+
+const createDirectory = (dir) => {
+  if (!fs.existsSync(dir)) {
+    return fs.mkdirSync(dir, { recursive: true });
+  }
+};
+
 module.exports = {
   groupByDate,
+  deleteFile,
+  createDirectory,
 };

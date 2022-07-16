@@ -4,9 +4,12 @@ const {
   AudioFileUploadController,
   DocumentFileUploadController,
   DownloadDocumentController,
+  AvatarUploadController,
 } = require('../controllers/file');
 const { authorize } = require('../middleware/authorize');
 const router = express();
+
+router.post('/upload/avatar', AvatarUploadController);
 
 router.post('/upload/message', authorize, MessageFileUploadController);
 
