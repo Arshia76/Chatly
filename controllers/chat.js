@@ -302,6 +302,46 @@ const addToGroupChatController = async (req, res) => {
   }
 };
 
+const leaveGroupController = async (req, res) => {
+  try {
+    const { user, chatId } = req.body;
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'کاربر را مشخص کنید.',
+      });
+    }
+
+    if (!chatId) {
+      return res.status(400).json({
+        success: false,
+        message: 'گروه را مشخص کنید.',
+      });
+    }
+
+    if (user.toString() !== req.user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'خطا در ترک گروه',
+      });
+    }
+
+    const chat = await ChatModel.findByIdAndUpdate(chatId, {
+      $pull: {
+        users: user,
+      },
+    });
+    return res.status(200).json(chat);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'خطای سرور',
+      error,
+    });
+  }
+};
+
 const removeUnreadMessagesController = async (req, res) => {
   try {
     if (!req.body.chatId) {
@@ -344,9 +384,6 @@ const increaseUnreadMessagesController = async (req, res) => {
       });
     }
 
-    console.log(req.body.chatId, '-------------------');
-    console.log(req.body.message._id, '-------------------');
-
     const updatedChat = await ChatModel.findByIdAndUpdate(
       req.body.chatId,
       {
@@ -356,7 +393,6 @@ const increaseUnreadMessagesController = async (req, res) => {
         new: true,
       }
     );
-    console.log(updatedChat, '-------------------');
 
     return res.status(200).json(updatedChat);
   } catch (error) {
@@ -374,6 +410,7 @@ module.exports = {
   createGroupChatController,
   renameGroupChatController,
   addToGroupChatController,
+  leaveGroupController,
   removeFromGroupChatController,
   removeUnreadMessagesController,
   increaseUnreadMessagesController,

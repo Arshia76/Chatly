@@ -5,7 +5,7 @@ const cors = require('cors');
 const upload = require('express-fileupload');
 const connectDB = require('./config/db');
 const path = require('path');
-
+const axios = require('axios');
 const app = express();
 const server = http.createServer(app);
 
@@ -53,36 +53,40 @@ let onlineUsers = [];
 io.on('connection', (socket) => {
   console.log('Connected to socket.io');
   socket.on('setup', (userData) => {
-    console.log('-----------------------------');
-    console.log(userData);
     socket.join(userData.id);
     if (!onlineUsers.some((data) => data.id === userData.id)) {
       onlineUsers.push({ id: userData.id, socket: socket.id });
     }
-    console.log(onlineUsers);
-    console.log(socket.rooms);
+
     io.emit('onlineUsers', onlineUsers);
     socket.emit('connected');
   });
 
   socket.on('join chat', (room) => {
     socket.join(room);
-    console.log(socket.rooms);
-    console.log('User Joined Room: ' + room);
   });
   socket.on('typing', (room) => socket.in(room).emit('در حال تایپ...'));
   socket.on('stop typing', (room) => socket.in(room).emit('تایپ متوقف شد...'));
 
-  socket.on('new message', (newMessageRecieved) => {
-    var chat = newMessageRecieved.chat;
+  socket.on('new message', ({ message, token }) => {
+    var chat = message.chat;
 
     if (!chat.users) return console.log('chat.users not defined');
 
-    // io.in(chat._id).emit('message recieved', newMessageRecieved);
-    chat.users.forEach((user) => {
-      // if (user._id == newMessageRecieved.sender._id) return;
+    if (true) {
+      axios
+        .put('/api/chat/increase/UnreadMessages', JSON.stringify(message), {
+          headers: {
+            'Content-Type': 'application/json',
+            'auth-token': token,
+          },
+        })
+        .then((data) => console.log(data))
+        .catch((err) => console.log(err));
+    }
 
-      io.in(user._id).emit('message recieved', newMessageRecieved);
+    chat.users.forEach((user) => {
+      io.in(user._id).emit('message recieved', message);
     });
   });
 

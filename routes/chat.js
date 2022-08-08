@@ -8,6 +8,7 @@ const {
   addToGroupChatController,
   increaseUnreadMessagesController,
   removeUnreadMessagesController,
+  leaveGroupController,
 } = require('../controllers/chat');
 const { authorize } = require('../middleware/authorize');
 const router = express.Router();
@@ -23,6 +24,8 @@ router.put('/group/rename', authorize, renameGroupChatController);
 router.put('/group/remove', authorize, removeFromGroupChatController);
 
 router.put('/group/add', authorize, addToGroupChatController);
+
+router.put('/group/leave', authorize, leaveGroupController);
 
 router.put(
   '/increase/UnreadMessages',

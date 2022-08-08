@@ -1,6 +1,7 @@
 const MessageModel = require('../models/Message');
 const ChatModel = require('../models/Chat');
 const UserModel = require('../models/User');
+const { deleteFile } = require('../utils/functions');
 
 const getAllMessagesController = async (req, res) => {
   try {
@@ -107,8 +108,41 @@ const replyMessageController = async (req, res) => {
   }
 };
 
+const deleteMessageController = async (req, res) => {
+  try {
+    const messageId = req.params.messageId;
+    const message = await MessageModel.findById(messageId);
+
+    console.log(message.sender);
+    console.log(req.user._id);
+
+    if (message.sender.toString() !== req.user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: 'پیام متعلق به شما نمی‌باشد.',
+      });
+    }
+
+    if (req.body.isFile) {
+      deleteFile(
+        `${require('path').resolve(__dirname, '..')}${message.content}`
+      );
+    }
+
+    const deletedMessage = await MessageModel.findByIdAndRemove(messageId);
+    return res.status(200).json(deletedMessage);
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'خطای سرور',
+      error,
+    });
+  }
+};
+
 module.exports = {
   getAllMessagesController,
   sendMessageController,
   replyMessageController,
+  deleteMessageController,
 };
